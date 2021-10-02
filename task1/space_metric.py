@@ -25,6 +25,4 @@ def triangular_window(r):
 
 
 def gauss_window(r):
-    return (2*np.pi)**(-0.5)*np.exp(-0.5*(r**2))
-
-
+    return (2 * np.pi) ** (-0.5) * np.exp(-0.5 * (r ** 2))
