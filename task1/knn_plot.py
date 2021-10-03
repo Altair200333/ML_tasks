@@ -15,3 +15,9 @@ def plot_map(x_test, y_test, x_train, y_train, k, metric, kernel):
 
     Z = predict_array(np.c_[xx.ravel(), yy.ravel()], x_train, y_train, k, metric, kernel)
     plt.contourf(xx, yy, Z.reshape(xx.shape), cmap=cm, alpha=.77)
+
+
+def set_ax_lims(axs, xlims, ylims):
+    for ax in axs:
+        ax.set_xlim(xlims[0], xlims[1])
+        ax.set_ylim(ylims[0], ylims[1])
