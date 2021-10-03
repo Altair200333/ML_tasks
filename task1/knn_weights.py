@@ -54,8 +54,9 @@ def remove_redundant_points(x_dataset, y_dataset, k, metric, kernel, iterations=
 
 
 def measure_accuracy(x_test, y_test, x_dataset, y_dataset, k, metric, kernel, weights=None):
-    right = np.add.reduce(list(
-        map(lambda i: np.float64((knn(x_test[i], x_dataset, y_dataset, k, metric, kernel, weights) == y_test[i])),
-            np.arange(len(x_test)))))
+    right = 0
+    for i in range(len(y_test)):
+        if knn(x_test[i], x_dataset, y_dataset, k, metric, kernel, weights) == y_test[i]:
+            right += 1
 
     return right / len(x_test)
