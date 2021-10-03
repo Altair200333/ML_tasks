@@ -11,14 +11,14 @@ from space_metric import *
 from knn_plot import plot_map
 
 iris = datasets.load_iris()
-X = iris.data[:, :2]
+X = iris.data[:, :5]
 y = iris.target
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4, random_state=43)
 
 metric = get_dst_metric(2)
-kernel = epanchinkow_window
-k = 10
+kernel = triangular_window
+k = 20
 
 print('accuracy before: ', measure_accuracy(X_test, y_test, X_train, y_train, k, metric, kernel))
 
@@ -28,10 +28,11 @@ non_zero_ids = [i for i in np.arange(weights.shape[0]) if weights[i] > 0]
 
 reduced_x = X_train[non_zero_ids]
 reduced_y = y_train[non_zero_ids]
-
+reduced_weights = weights[non_zero_ids]
 # print(reduced_y)
 
-print('accuracy after: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel, weights))
+print('accuracy after weights: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel, reduced_weights))
+print('accuracy after: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel))
 
-plot_map(X_test, y_test, reduced_x, reduced_y,  k, metric, kernel)
+#plot_map(X_test, y_test, reduced_x, reduced_y,  k, metric, kernel)
 plt.show()
