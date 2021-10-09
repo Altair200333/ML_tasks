@@ -11,7 +11,8 @@ def get_fpr_tpr(labels, predictions):
     output_sorted = predictions[sorted_args][::-1]
     y_test_sorted = labels[sorted_args][::-1]
 
-    thresholds = np.insert(np.append(output_sorted, 0), 0, 1)
+    eps = 1e-6
+    thresholds = np.insert(np.append(output_sorted, 0 - eps), 0, 1 + eps)
     tpr = list(map(lambda item: TPRate(output_sorted, y_test_sorted, item), thresholds))
     fpr = list(map(lambda item: FPRate(output_sorted, y_test_sorted, item), thresholds))
 
