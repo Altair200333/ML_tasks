@@ -52,5 +52,7 @@ print('accuracy after weights: ',
       measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel, reduced_weights))
 print('accuracy after: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel))
 
+print('accuracy on self: ', measure_accuracy(X_train, y_train, reduced_x, reduced_y, k, metric, kernel, reduced_weights))
+
 # plot_map(X_test, y_test, reduced_x, reduced_y,  k, metric, kernel)
 plt.show()
