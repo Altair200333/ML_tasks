@@ -6,19 +6,20 @@ from space_metric import *
 from knn_plot import *
 
 
-def measure_knn(dataset, features, k, metric, kernel, test_ratio):
+def measure_knn(dataset, features, k, metric, kernel, test_ratio, max_distance):
     X = dataset.data[:, :features]
     y = dataset.target
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio, random_state=42)
 
-    print('accuracy: ', measure_accuracy(X_test, y_test, X_train, y_train, k, metric, kernel))
+    print('accuracy on self: ', measure_accuracy(X_train, y_train, X_train, y_train, k, metric, kernel, max_distance))
+    print('accuracy on test: ', measure_accuracy(X_test, y_test, X_train, y_train, k, metric, kernel, max_distance))
 
-    test_predictions = predict_array(X_test, X_train, y_train, k, metric, kernel)
+    test_predictions = predict_array(X_test, X_train, y_train, k, metric, kernel, max_distance)
     predictions_mask = (test_predictions == y_test)
     correct_predictions_ids = [i for i in np.arange(predictions_mask.shape[0]) if predictions_mask[i]]
     wrong_predictions_ids = [i for i in np.arange(predictions_mask.shape[0]) if not predictions_mask[i]]
 
-    weights = remove_redundant_points(X_train, y_train, k, metric, kernel)
+    weights = remove_redundant_points(X_train, y_train, k, metric, kernel, max_distance)
 
     non_zero_ids = [i for i in np.arange(weights.shape[0]) if weights[i] > 0]
 
@@ -26,9 +27,9 @@ def measure_knn(dataset, features, k, metric, kernel, test_ratio):
     reduced_y = y_train[non_zero_ids]
     reduced_weights = weights[non_zero_ids]
 
-    print('accuracy after weights: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel,
-                                                       reduced_weights))
-    print('accuracy after: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel))
+    print('accuracy on itself after weights: ',
+          measure_accuracy(X_train, y_train, reduced_x, reduced_y, k, metric, kernel, max_distance, reduced_weights))
+    print('accuracy on test after weights: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel, max_distance, reduced_weights))
 
 
 def knn_grid_search(dataset, features_to_test, k_to_test, metrics_to_test, kernels_to_test, test_ratio, seed=42):

@@ -23,12 +23,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4, random_s
 metric = get_dst_metric(2)
 kernel = triangular_window
 k = 10
-max_distance = max([metric(X_train[0], x) for x in X_train]) * 0.25
+max_distance = max([max([metric(y, x) for x in X_train]) for y in X_train]) * 0.1
+print(max_distance)
 
 weights_1 = np.arange(0, len(X_train))
 print('accuracy on self before: ', measure_accuracy(X_train, y_train, X_train, y_train, k, metric, kernel, max_distance))
 
-weights = remove_redundant_points(X_train, y_train, k, metric, kernel, 30)
+weights = remove_redundant_points(X_train, y_train, k, metric, kernel, max_distance, 30)
 print(weights)
 print('accuracy on self raw weights: ', measure_accuracy(X_train, y_train, X_train, y_train, k, metric, kernel,
                                                          max_distance, weights))

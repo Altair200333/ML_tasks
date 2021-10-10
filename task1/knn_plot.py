@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from knn_weights import *
 
 
-def plot_map(x_test, y_test, x_train, y_train, k, metric, kernel):
+def plot_map(x_test, y_test, x_train, y_train, k, metric, kernel, max_distance):
     h = .1  # step size in the mesh
     x_min, x_max = x_test[:, 0].min() - .5, x_test[:, 0].max() + .5
     y_min, y_max = x_test[:, 1].min() - .5, x_test[:, 1].max() + .5
@@ -11,9 +11,9 @@ def plot_map(x_test, y_test, x_train, y_train, k, metric, kernel):
                          np.arange(y_min, y_max, h))
 
     cm = plt.cm.RdBu
-    plt.scatter(x_train[:, 0], x_train[:, 1], c=y_train, cmap=cm, edgecolors='k')
+    plt.scatter(x_test[:, 0], x_test[:, 1], c=y_test, cmap=cm, edgecolors='k')
 
-    Z = predict_array(np.c_[xx.ravel(), yy.ravel()], x_train, y_train, k, metric, kernel)
+    Z = predict_array(np.c_[xx.ravel(), yy.ravel()], x_train, y_train, k, metric, kernel, max_distance)
     plt.contourf(xx, yy, Z.reshape(xx.shape), cmap=cm, alpha=.77)
 
 
