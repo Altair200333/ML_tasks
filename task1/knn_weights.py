@@ -3,7 +3,7 @@ from space_metric import *
 
 
 def compute_distances(point, dataset, metric):
-    return list(map(lambda x: metric(x, point), dataset))
+    return [metric(x, point) for x in dataset]
 
 
 def accumulate_around_label(y, kernel, distances, labels, weights, max_distance):
@@ -27,8 +27,9 @@ def knn(point, dataset, labels, k, metric, kernel, max_distance, weights=None):
     else:
         weights = np.ones(sorted_args.shape, dtype=np.float64)
 
-    class_values = list(
-        map(lambda i: accumulate_around_label(i, kernel, k_nearest_distances, k_nearest_labels, weights, max_distance), np.arange(max_label + 1)))
+    class_values = [accumulate_around_label(i, kernel, k_nearest_distances, k_nearest_labels, weights, max_distance) for
+                    i in np.arange(max_label + 1)]
+
     determined_class = np.argmax(class_values)
 
     return determined_class

@@ -1,18 +1,22 @@
 from knn_weights import *
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
+from sklearn.utils import shuffle
 
 from space_metric import *
 from knn_plot import *
 
 
-def measure_knn(dataset, features, k, metric, kernel, test_ratio, max_distance):
+def measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train=False):
     X = dataset.data[:, :features]
     y = dataset.target
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio, random_state=42)
 
-    print('accuracy on self: ', measure_accuracy(X_train, y_train, X_train, y_train, k, metric, kernel, max_distance))
-    print('accuracy on test: ', measure_accuracy(X_test, y_test, X_train, y_train, k, metric, kernel, max_distance))
+    if shuffle_train:
+        X_train, y_train = shuffle(X_train, y_train)
+
+    self_acc = measure_accuracy(X_train, y_train, X_train, y_train, k, metric, kernel, max_distance)
+    test_acc = measure_accuracy(X_test, y_test, X_train, y_train, k, metric, kernel, max_distance)
 
     test_predictions = predict_array(X_test, X_train, y_train, k, metric, kernel, max_distance)
     predictions_mask = (test_predictions == y_test)
@@ -27,9 +31,22 @@ def measure_knn(dataset, features, k, metric, kernel, test_ratio, max_distance):
     reduced_y = y_train[non_zero_ids]
     reduced_weights = weights[non_zero_ids]
 
-    print('accuracy on itself after weights: ',
-          measure_accuracy(X_train, y_train, reduced_x, reduced_y, k, metric, kernel, max_distance, reduced_weights))
-    print('accuracy on test after weights: ', measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel, max_distance, reduced_weights))
+    self_acc_w = measure_accuracy(X_train, y_train, reduced_x, reduced_y, k, metric, kernel, max_distance,
+                                  reduced_weights)
+    test_acc_w = measure_accuracy(X_test, y_test, reduced_x, reduced_y, k, metric, kernel, max_distance,
+                                  reduced_weights)
+
+    return self_acc, test_acc, self_acc_w, test_acc_w
+
+
+def measure_knn(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train=False):
+    self_acc, test_acc, self_acc_w, test_acc_w = measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train)
+
+    print('accuracy on self: ', self_acc)
+    print('accuracy on test: ', test_acc)
+
+    print('accuracy on itself after weights: ', self_acc_w)
+    print('accuracy on test after weights: ', test_acc_w)
 
 
 def knn_grid_search(dataset, features_to_test, k_to_test, metrics_to_test, kernels_to_test, test_ratio, seed=42):
