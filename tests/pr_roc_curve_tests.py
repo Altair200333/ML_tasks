@@ -5,6 +5,7 @@ from dataset_manager import *
 from metrics import *
 from roc_pr_tools import *
 from plot_tools import *
+from sklearn.metrics import precision_recall_curve
 
 output = np.array([1, 1, 1, 0, 0])
 y_test = np.array([1, 1, 1, 0, 0])
@@ -15,6 +16,8 @@ print("Area under curve: ", get_auc(fpr, tpr))
 recalls, precisions = get_pr_curve(output, y_test)
 print("Area under curve: ", get_auc(recalls, precisions ))
 
+#precision, recall, thresholds = precision_recall_curve(y_test, output)
+#plt.plot(recall, precision)
 showPlots([{'data': tpr, 'x': fpr, 'label': "ROC"},
            {'data': precisions, 'x': recalls, 'label': "PR"}])
 

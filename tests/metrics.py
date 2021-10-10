@@ -16,13 +16,17 @@ def get_fn(predict, ground_truth, threshold):
 def precision(predict, ground_truth, threshold):
     tp = get_tp(predict, ground_truth, threshold)
     fp = get_fp(predict, ground_truth, threshold)
-
+    if tp + fp == 0:
+        return 1
     return tp / (tp + fp)
 
 
 def recall(predict, ground_truth, threshold):
     tp = get_tp(predict, ground_truth, threshold)
     fn = get_fn(predict, ground_truth, threshold)
+
+    if tp + fn == 0:
+        return 1
     return tp / (tp + fn)
 
 
