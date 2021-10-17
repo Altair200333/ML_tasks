@@ -7,7 +7,7 @@ from space_metric import *
 from knn_plot import *
 
 
-def measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train=False):
+def measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train=False, iterations = 10):
     X = dataset.data[:, :features]
     y = dataset.target
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_ratio, random_state=42)
@@ -23,7 +23,7 @@ def measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_dista
     correct_predictions_ids = [i for i in np.arange(predictions_mask.shape[0]) if predictions_mask[i]]
     wrong_predictions_ids = [i for i in np.arange(predictions_mask.shape[0]) if not predictions_mask[i]]
 
-    weights = remove_redundant_points(X_train, y_train, k, metric, kernel, max_distance)
+    weights = remove_redundant_points(X_train, y_train, k, metric, kernel, max_distance, iterations)
 
     non_zero_ids = [i for i in np.arange(weights.shape[0]) if weights[i] > 0]
 
@@ -39,8 +39,8 @@ def measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_dista
     return self_acc, test_acc, self_acc_w, test_acc_w
 
 
-def measure_knn(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train=False):
-    self_acc, test_acc, self_acc_w, test_acc_w = measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train)
+def measure_knn(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train=False, iterations = 10):
+    self_acc, test_acc, self_acc_w, test_acc_w = measure_knn_data(dataset, features, k, metric, kernel, test_ratio, max_distance, shuffle_train, iterations)
 
     print('accuracy on self: ', self_acc)
     print('accuracy on test: ', test_acc)
