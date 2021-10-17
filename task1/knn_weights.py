@@ -6,28 +6,25 @@ def compute_distances(point, dataset, metric):
     return [metric(x, point) for x in dataset]
 
 
-def accumulate_around_label(y, kernel, distances, labels, weights, max_distance):
-    result = 0
-    for i in range(len(distances)):
-        result += np.float64(y == labels[i]) * np.float64(weights[i]) * kernel(distances[i] / max_distance)
-    return result
+def accumulate_for_label(y, kernel, distances, labels, weights, max_distance):
+    return np.add.reduce([np.float64(y == labels[i]) * np.float64(weights[i]) * kernel(distances[i] / max_distance) for i in range(len(distances))])
 
 
 def knn(point, dataset, labels, k, metric, kernel, max_distance, weights=None):
     distances = np.array(compute_distances(point, dataset, metric))
-    sorted_args = np.argsort(distances)
+    sorted_args = np.argsort(distances)[:k]
 
-    k_nearest_labels = labels[sorted_args][:k]
-    k_nearest_distances = distances[sorted_args][:k]
+    k_nearest_labels = labels[sorted_args]
+    k_nearest_distances = distances[sorted_args]
 
-    max_label = np.max(k_nearest_labels)
+    max_label = np.max(labels)
 
     if weights is not None:
-        weights = weights[sorted_args][:k]
+        weights = weights[sorted_args]
     else:
         weights = np.ones(sorted_args.shape, dtype=np.float64)
 
-    class_values = [accumulate_around_label(i, kernel, k_nearest_distances, k_nearest_labels, weights, max_distance) for
+    class_values = [accumulate_for_label(i, kernel, k_nearest_distances, k_nearest_labels, weights, max_distance) for
                     i in np.arange(max_label + 1)]
 
     determined_class = np.argmax(class_values)
@@ -36,7 +33,7 @@ def knn(point, dataset, labels, k, metric, kernel, max_distance, weights=None):
 
 
 def predict_array(points, dataset, labels, k, metric, kernel, max_distance, weights=None):
-    return np.array([knn(x, dataset, labels, k, metric, kernel, max_distance, weights) for x in points])# np.array(list(map(lambda x: knn(x, dataset, labels, k, metric, kernel, max_distance, weights), points)))
+    return np.asarray([knn(x, dataset, labels, k, metric, kernel, max_distance, weights) for x in points])# np.array(list(map(lambda x: knn(x, dataset, labels, k, metric, kernel, max_distance, weights), points)))
 
 
 def remove_redundant_points(x_dataset, y_dataset, k, metric, kernel, max_distance, iterations=10):
