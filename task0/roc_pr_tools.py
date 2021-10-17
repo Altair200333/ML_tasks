@@ -13,8 +13,8 @@ def get_fpr_tpr(labels, predictions):
 
     eps = 1e-6
     thresholds = np.insert(np.append(output_sorted, 0 - eps), 0, 1 + eps)
-    tpr = list(map(lambda item: TPRate(output_sorted, y_test_sorted, item), thresholds))
-    fpr = list(map(lambda item: FPRate(output_sorted, y_test_sorted, item), thresholds))
+    tpr = [TPRate(output_sorted, y_test_sorted, item) for item in thresholds]
+    fpr = [FPRate(output_sorted, y_test_sorted, item) for item in thresholds]
 
     return fpr, tpr
 
@@ -36,8 +36,9 @@ def get_precision_recall(labels, predictions):
     output_sorted = predictions[sorted_args][::-1]
     y_test_sorted = labels[sorted_args][::-1]
 
-    thresholds = np.linspace(0, 1, num=100)[::-1]
-
+    #thresholds = np.linspace(0, 1, num=100)[::-1]
+    eps = 1e-6
+    thresholds = np.insert(np.append(output_sorted, 0 - eps), 0, 1 + eps)
     precisions = [precision(output_sorted, y_test_sorted, item) for item in thresholds]
     racalls = [recall(output_sorted, y_test_sorted, item) for item in thresholds]
 

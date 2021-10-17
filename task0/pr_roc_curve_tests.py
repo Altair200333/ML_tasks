@@ -11,6 +11,8 @@ output = np.array([1, 1, 1, 0, 0])
 y_test = np.array([1, 1, 1, 0, 0])
 
 fpr, tpr = get_roc_curve(output, y_test)
+
+
 print("Area under curve: ", get_auc(fpr, tpr))
 
 recalls, precisions = get_pr_curve(output, y_test)

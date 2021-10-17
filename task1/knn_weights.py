@@ -36,7 +36,7 @@ def knn(point, dataset, labels, k, metric, kernel, max_distance, weights=None):
 
 
 def predict_array(points, dataset, labels, k, metric, kernel, max_distance, weights=None):
-    return np.array(list(map(lambda x: knn(x, dataset, labels, k, metric, kernel, max_distance, weights), points)))
+    return np.array([knn(x, dataset, labels, k, metric, kernel, max_distance, weights) for x in points])# np.array(list(map(lambda x: knn(x, dataset, labels, k, metric, kernel, max_distance, weights), points)))
 
 
 def remove_redundant_points(x_dataset, y_dataset, k, metric, kernel, max_distance, iterations=10):
