@@ -60,3 +60,6 @@ def plot_correct_wrong(predictions, X_test, y_test, show = False):
         plt.tight_layout()
         plt.legend()
         plt.show()
+
+    print('correct ids', correct_predictions_ids)
+    print('wrong   ids', wrong_predictions_ids)

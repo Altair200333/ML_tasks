@@ -58,3 +58,8 @@ def measure_accuracy(x_test, y_test, x_dataset, y_dataset, k, metric, kernel, ma
             right += 1
 
     return right / len(x_test)
+
+def compute_accuracy(y_pred, y_truth):
+    a = [1 for i, j in zip(y_pred, y_truth) if i in range(j-5,j+6)]
+
+    return np.add.reduce(a)/len(y_pred)
