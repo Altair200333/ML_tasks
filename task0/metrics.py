@@ -10,7 +10,7 @@ def get_fp(predict, ground_truth, threshold):
 
 
 def get_fn(predict, ground_truth, threshold):
-    return np.add.reduce((predict[:] <= threshold) & (ground_truth == 1))
+    return np.add.reduce((predict[:] < threshold) & (ground_truth == 1))
 
 
 def precision(predict, ground_truth, threshold):
@@ -25,8 +25,6 @@ def recall(predict, ground_truth, threshold):
     tp = get_tp(predict, ground_truth, threshold)
     fn = get_fn(predict, ground_truth, threshold)
 
-    if tp + fn == 0:
-        return 1
     return tp / (tp + fn)
 
 

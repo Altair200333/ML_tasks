@@ -1,10 +1,4 @@
-from sklearn.datasets import load_iris
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
 from knn_weights import *
-from matplotlib.colors import ListedColormap
 from sklearn.base import BaseEstimator, ClassifierMixin
 
 from space_metric import *
@@ -25,7 +19,7 @@ class KnnPowerClassifier(BaseEstimator, ClassifierMixin):
         self.max_distance = 0
 
     def fit(self, X, y):
-        self.max_distance = max([max([self.metric(y, x) for x in X]) for y in X]) * 2
+        self.max_distance =  max([max([self.metric(y, x) for x in X]) for y in X]) * 2 #max(self.metric(X[:, np.newaxis, :] - X[np.newaxis, :, :])) 
         weights = remove_redundant_points(X, y, self.k, self.metric, self.kernel, self.max_distance, self.iterations)
         non_zero_ids = [i for i in range(weights.shape[0]) if weights[i] > 0]
 

@@ -12,7 +12,7 @@ def accumulate_for_label(y, kernel, distances, labels, weights, max_distance):
 
 def knn(point, dataset, labels, k, metric, kernel, max_distance, weights=None):
     distances = np.array(compute_distances(point, dataset, metric))
-    sorted_args = np.argsort(distances)[:k]
+    sorted_args = np.argsort(distances)
 
     k_nearest_labels = labels[sorted_args]
     k_nearest_distances = distances[sorted_args]
@@ -33,20 +33,22 @@ def knn(point, dataset, labels, k, metric, kernel, max_distance, weights=None):
 
 
 def predict_array(points, dataset, labels, k, metric, kernel, max_distance, weights=None):
-    return np.asarray([knn(x, dataset, labels, k, metric, kernel, max_distance, weights) for x in points])# np.array(list(map(lambda x: knn(x, dataset, labels, k, metric, kernel, max_distance, weights), points)))
+    return np.asarray([knn(x, dataset, labels, k, metric, kernel, max_distance, weights) for x in points])
 
 
 def remove_redundant_points(x_dataset, y_dataset, k, metric, kernel, max_distance, iterations=10):
     weights = np.zeros(y_dataset.shape)
 
     for iteration in range(iterations):
-        misses = 0
         for idx, (x, y) in enumerate(zip(x_dataset, y_dataset)):
             predicted = knn(x, x_dataset, y_dataset, k, metric, kernel, max_distance, weights)
             if predicted != y:
-                misses += 1
                 weights[idx] += 1
+    #labes = [0, 1, 2 ,3]
 
+    #[ [K(metric(x*, x_i)) * w(x_i)*[y' == y*]] for y_i in labels]
+
+    #y_val, x_val    
     # print(measure_accuracy(x_dataset, y_dataset, x_dataset, y_dataset, k, metric, kernel, weights))
     return weights
 
