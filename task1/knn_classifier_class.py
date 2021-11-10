@@ -33,6 +33,7 @@ class KnnPowerClassifier(BaseEstimator, ClassifierMixin):
         self.trained = True
 
         self.max_distance =  max([max([self.metric(y, x) for x in X]) for y in X]) * 2 #max(self.metric(X[:, np.newaxis, :] - X[np.newaxis, :, :])) 
+        
         weights = remove_redundant_points(X, y, self.k, self.metric, self.kernel, self.max_distance, self.iterations)
         non_zero_ids = [i for i in range(weights.shape[0]) if weights[i] > 0]
 
