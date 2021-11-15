@@ -6,12 +6,13 @@ from knn_plot import *
 from knn_tests import *
 
 class KnnPowerClassifier(BaseEstimator, ClassifierMixin):
-    def __init__(self, metric, kernel, k, iterations):
+    def __init__(self, metric, kernel, k, iterations, max_scale = 2):
         self.metric = metric
         self.kernel = kernel
         self.k = k
         self.iterations = iterations
-        
+        self.max_dst_scale = max_scale
+
         self.reduced_weights = self.current_weights = np.array([])
         self.reduced_x = self.current_x = np.array([])
         self.reduced_y = self.current_y = np.array([])
@@ -32,7 +33,7 @@ class KnnPowerClassifier(BaseEstimator, ClassifierMixin):
     def fit(self, X, y):
         self.trained = True
 
-        self.max_distance =  max([max([self.metric(y, x) for x in X]) for y in X]) * 2 #max(self.metric(X[:, np.newaxis, :] - X[np.newaxis, :, :])) 
+        self.max_distance =  max([max([self.metric(y, x) for x in X]) for y in X]) * self.max_dst_scale #max(self.metric(X[:, np.newaxis, :] - X[np.newaxis, :, :])) 
         
         weights = remove_redundant_points(X, y, self.k, self.metric, self.kernel, self.max_distance, self.iterations)
         non_zero_ids = [i for i in range(weights.shape[0]) if weights[i] > 0]
