@@ -31,11 +31,30 @@ class DataTransformer:
             self.scaler = None
             self.use_scaler = False
 
-        self.imputer = SimpleImputer()
+        self.enc = OneHotEncoder(handle_unknown = 'ignore', sparse=False)
+
+        self.imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
+
+    def fit_encoder(self, X):
+        o_cols = X.select_dtypes([object]).columns
+        self.enc.fit(X[o_cols])
 
     def encode(self, X):
-        encoded = one_hot_encode(X)
-        return encoded
+        #select object cols
+        o_cols = X.select_dtypes([object]).columns
+
+        #encode those and create df
+        encoded = self.enc.transform(X[o_cols]) #one_hot_encode(X)
+        df = pd.DataFrame(encoded)
+
+        #drop object cols and append encoded
+        result = X.drop(columns=o_cols)
+
+        print(result.shape, df.shape)
+
+        result = pd.concat([result.reset_index(drop=True), df.reset_index(drop=True)], axis=1)
+
+        return result
 
     def imputer_fit(self, X):
         self.imputer.fit(X)
