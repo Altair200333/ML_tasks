@@ -17,21 +17,13 @@ from sklearn.ensemble import RandomForestRegressor
 
 
 class DataTransformer:
-    def __init__(self, use_scaler = False, scaler = None):
-
-        
-        if use_scaler or scaler is not None:
-            if scaler is not None:
-                self.scaler = scaler
-            else:
-                self.scaler = StandardScaler()
-            
-            self.use_scaler = True
+    def __init__(self, scaler=None):
+        if scaler is not None:
+            self.scaler = scaler
         else:
-            self.scaler = None
-            self.use_scaler = False
+            self.scaler = StandardScaler()
 
-        self.enc = OneHotEncoder(handle_unknown = 'ignore', sparse=False)
+        self.enc = OneHotEncoder(handle_unknown='ignore', sparse=False)
 
         self.imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
 
@@ -40,14 +32,14 @@ class DataTransformer:
         self.enc.fit(X[o_cols])
 
     def encode(self, X):
-        #select object cols
+        # select object cols
         o_cols = X.select_dtypes([object]).columns
 
-        #encode those and create df
-        encoded = self.enc.transform(X[o_cols]) #one_hot_encode(X)
+        # encode those and create df
+        encoded = self.enc.transform(X[o_cols])  # one_hot_encode(X)
         df = pd.DataFrame(encoded)
 
-        #drop object cols and append encoded
+        # drop object cols and append encoded
         result = X.drop(columns=o_cols)
 
         print(result.shape, df.shape)
@@ -64,13 +56,26 @@ class DataTransformer:
         return data
 
     def scaler_fit(self, X):
-        if self.use_scaler:
-            self.scaler.fit(X)
+        self.scaler.fit(X)
 
     def scaler_transform(self, X):
-        if self.use_scaler:
-            data = self.scaler.transform(X)
+        data = self.scaler.transform(X)
 
-            return data
-        else:
-            return X
+        return data
+
+    def nums_to_cats(self, X):
+        num_to_cats = ["BsmtHalfBath", "HalfBath", "KitchenAbvGr", "BsmtFullBath", "Fireplaces", "FullBath",
+                       "GarageCars",
+                       "BedroomAbvGr", "OverallCond", "OverallQual", "TotRmsAbvGrd", "MSSubClass", "YrSold", "MoSold",
+                       "GarageYrBlt", "YearRemodAdd"]
+
+        for feat in num_to_cats:
+            X[feat] = X[feat].astype("object")
+
+        return X
+
+    def fillna(self, X):
+        for col in X.columns:
+            if X[col].dtype == "object":
+                X[col] = X[col].fillna("None")
+                X[col] = X[col].astype("object")
