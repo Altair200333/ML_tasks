@@ -75,6 +75,11 @@ class DataTransformer:
         return X
 
     def fillna(self, X):
+        X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
+
+        for col in ('GarageYrBlt', 'GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'):
+            X[col] = X[col].fillna(0)
+
         for col in X.columns:
             if X[col].dtype == "object":
 
