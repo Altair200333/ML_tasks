@@ -70,12 +70,13 @@ class DataTransformer:
                        "GarageYrBlt", "YearRemodAdd"]
 
         for feat in num_to_cats:
-            X[feat] = X[feat].astype("object")
+            X[feat] = X[feat].apply(str).astype("object")
 
         return X
 
     def fillna(self, X):
         for col in X.columns:
             if X[col].dtype == "object":
+
                 X[col] = X[col].fillna("None")
                 X[col] = X[col].astype("object")
