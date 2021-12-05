@@ -64,10 +64,7 @@ class DataTransformer:
         return data
 
     def nums_to_cats(self, X):
-        num_to_cats = ["BsmtHalfBath", "HalfBath", "KitchenAbvGr", "BsmtFullBath", "Fireplaces", "FullBath",
-                       "GarageCars",
-                       "BedroomAbvGr", "OverallCond", "OverallQual", "TotRmsAbvGrd", "MSSubClass", "YrSold", "MoSold",
-                       "GarageYrBlt", "YearRemodAdd"]
+        num_to_cats = ["HalfBath", "KitchenAbvGr", "Fireplaces", "FullBath", "OverallCond", "OverallQual", "TotRmsAbvGrd", "MSSubClass",  "MoSold"]
 
         for feat in num_to_cats:
             X[feat] = X[feat].apply(str).astype("object")
@@ -77,11 +74,17 @@ class DataTransformer:
     def fillna(self, X):
         X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
 
-        for col in ('GarageYrBlt', 'GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2', 'BsmtUnfSF','TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath'):
+        X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(
+            lambda x: x.fillna(x.median()))
+
+        # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
+        zero_nan_cols = ['GarageYrBlt', 'GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
+                         'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr', "YrSold", "YearRemodAdd"]
+
+        for col in zero_nan_cols:
             X[col] = X[col].fillna(0)
 
         for col in X.columns:
             if X[col].dtype == "object":
-
                 X[col] = X[col].fillna("None")
                 X[col] = X[col].astype("object")
