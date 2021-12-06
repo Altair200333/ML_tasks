@@ -16,6 +16,12 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 
 
+def remove_outliers(X):
+    ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000)].index
+
+    return X.drop(ids)
+
+
 class DataTransformer:
     def __init__(self, scaler=None):
         if scaler is not None:
@@ -64,7 +70,8 @@ class DataTransformer:
         return data
 
     def nums_to_cats(self, X):
-        num_to_cats = ["HalfBath", "KitchenAbvGr", "Fireplaces", "FullBath", "OverallCond", "OverallQual", "TotRmsAbvGrd", "MSSubClass",  "MoSold"]
+        num_to_cats = ["HalfBath", "KitchenAbvGr", "Fireplaces", "FullBath", "OverallCond", "OverallQual",
+                       "TotRmsAbvGrd", "MSSubClass", "MoSold"]
 
         for feat in num_to_cats:
             X[feat] = X[feat].apply(str).astype("object")
@@ -79,7 +86,8 @@ class DataTransformer:
 
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
         zero_nan_cols = ['GarageYrBlt', 'GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
-                         'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr', "YrSold", "YearRemodAdd"]
+                         'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr', "YrSold",
+                         "YearRemodAdd"]
 
         for col in zero_nan_cols:
             X[col] = X[col].fillna(0)
