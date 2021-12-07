@@ -19,10 +19,20 @@ from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 
 
-def remove_outliers(X):
-    ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000)].index
-
+def remove_outliers(X, lot_area=False):
+    ids = None
+    if not lot_area:
+        ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000)].index
+    else:
+        ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000))].index
+    print(ids)
     return X.drop(ids)
+
+
+def remove_outliers_split(X, y):
+    ids = X[((X['GrLivArea'] > 4000) & (np.expm1(y) < 300000)) | (X["LotArea"] > 100000)].index
+    print(ids)
+    return X.drop(ids), y.drop(ids)
 
 
 class DataTransformer:
