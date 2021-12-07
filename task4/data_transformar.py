@@ -81,13 +81,12 @@ class DataTransformer:
     def fillna(self, X):
         X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
 
-        X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(
-            lambda x: x.fillna(x.median()))
+        #X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
-        zero_nan_cols = ['GarageYrBlt', 'GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
-                         'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr', "YrSold",
-                         "YearRemodAdd"]
+        zero_nan_cols = ['GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
+                         'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr',
+                         "YearRemodAdd", "1stFlrSF", "2ndFlrSF"]
 
         for col in zero_nan_cols:
             X[col] = X[col].fillna(0)
