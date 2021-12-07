@@ -81,12 +81,12 @@ class DataTransformer:
     def fillna(self, X):
         X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
 
-        #X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
+        # X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
         zero_nan_cols = ['GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
                          'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr',
-                         "YearRemodAdd", "1stFlrSF", "2ndFlrSF"]
+                         "1stFlrSF", "2ndFlrSF"]
 
         for col in zero_nan_cols:
             X[col] = X[col].fillna(0)
@@ -95,3 +95,35 @@ class DataTransformer:
             if X[col].dtype == "object":
                 X[col] = X[col].fillna("None")
                 X[col] = X[col].astype("object")
+
+    def drop_columns(self, X):
+        cats_to_drop = ["Utilities", "LotFrontage", "GarageYrBlt", "YearRemodAdd"]
+        X = X.drop(cats_to_drop, axis=1)
+        return X
+
+    def prepare(self, X):
+        X = self.drop_columns(X)
+        self.nums_to_cats(X)
+        self.fillna(X)
+        return X
+
+    def fit(self, X):
+        num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
+        self.imputer_fit(X[num_candidates])
+
+        numeric = self.imputer_transform(X[num_candidates])
+
+        self.scaler_fit(numeric)
+
+        self.fit_encoder(X)
+
+    def transform(self, X, encode=True):
+        num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
+        X[num_candidates] = self.imputer_transform(X[num_candidates])
+
+        X[num_candidates] = self.scaler_transform(X[num_candidates])
+
+        if encode:
+            X = self.encode(X)
+
+        return X
