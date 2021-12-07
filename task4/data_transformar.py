@@ -5,6 +5,7 @@ import numpy as np
 import warnings
 from sklearn.model_selection import train_test_split
 import xgboost as xgb
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import cross_val_score
@@ -14,6 +15,8 @@ from sklearn.preprocessing import MinMaxScaler
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.experimental import enable_iterative_imputer
+from sklearn.impute import IterativeImputer
 
 
 def remove_outliers(X):
@@ -31,7 +34,8 @@ class DataTransformer:
 
         self.enc = OneHotEncoder(handle_unknown='ignore', sparse=False)
 
-        self.imputer = SimpleImputer(missing_values=np.nan, strategy='mean')
+        self.imputer = IterativeImputer(max_iter=10,
+                                        random_state=0)  # SimpleImputer(missing_values=np.nan, strategy='mean')
 
     def fit_encoder(self, X):
         o_cols = X.select_dtypes([object]).columns
@@ -71,7 +75,7 @@ class DataTransformer:
 
     def nums_to_cats(self, X):
         num_to_cats = ["HalfBath", "KitchenAbvGr", "Fireplaces", "FullBath", "OverallCond", "OverallQual",
-                       "TotRmsAbvGrd", "MSSubClass", "MoSold"]
+                       "TotRmsAbvGrd", "MSSubClass", "MoSold", "YrSold"]
 
         for feat in num_to_cats:
             X[feat] = X[feat].apply(str).astype("object")
@@ -79,8 +83,7 @@ class DataTransformer:
         return X
 
     def fillna(self, X):
-        X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
-
+        # X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
         # X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
@@ -91,13 +94,17 @@ class DataTransformer:
         for col in zero_nan_cols:
             X[col] = X[col].fillna(0)
 
+        X['Functional'] = X['Functional'].fillna('Typ')  # Typical Functionality
+        X['Electrical'] = X['Electrical'].fillna("SBrkr")  # Standard Circuit Breakers & Romex
+        X['KitchenQual'] = X['KitchenQual'].fillna("TA")  # Typical/Average
+
         for col in X.columns:
             if X[col].dtype == "object":
                 X[col] = X[col].fillna("None")
                 X[col] = X[col].astype("object")
 
     def drop_columns(self, X):
-        cats_to_drop = ["Utilities", "LotFrontage", "GarageYrBlt", "YearRemodAdd"]
+        cats_to_drop = ["Utilities", "GarageYrBlt", "YearRemodAdd"]
         X = X.drop(cats_to_drop, axis=1)
         return X
 
