@@ -15,6 +15,7 @@ def get_missing_values_info(df):
     total=df.isnull().sum().sort_values(ascending=False)
     percent=total/len(df)*100
     temp=pd.concat([total, percent], axis=1, keys=['Total', '%'])
+    temp=pd.concat([temp, df.dtypes], axis=1)
 
     return temp.loc[(temp['%']>0)]
 

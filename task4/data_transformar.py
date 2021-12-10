@@ -86,16 +86,19 @@ class DataTransformer:
         return data
 
     def nums_to_cats(self, X):
-        #num_to_cats = ["HalfBath", "FullBath", "OverallCond", "OverallQual",
-        #               "MSSubClass", "MoSold", "YrSold"]
-#
-        #for feat in num_to_cats:
-        #    X[feat] = X[feat].apply(str).astype("object")
+        num_to_cats = ["MoSold", "YrSold"]
+
+        for feat in num_to_cats:
+            X[feat] = X[feat].apply(str).astype("object")
 
         return X
 
     def fillna(self, X):
-        # X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
+        #X = X[(X.MSZoning != 'C (all)') & (X.MSZoning != 'I (all)') & (X.MSZoning != 'A (agr)')]
+
+        X['Exterior1st'] = X['Exterior1st'].fillna(X['Exterior1st'].mode()[0])
+        X['Exterior2nd'] = X['Exterior2nd'].fillna(X['Exterior2nd'].mode()[0])
+        X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
         # X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 
         dist_cols = ["LotFrontage", "GarageYrBlt"]
@@ -149,6 +152,10 @@ class DataTransformer:
     def transform(self, X, encode=True):
         num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
         X[num_candidates] = self.imputer_transform(X[num_candidates])
+
+        X['TotalSF'] = X['TotalBsmtSF'] + X['1stFlrSF'] + X['2ndFlrSF']
+        X['Total_sqr_footage'] = (X['BsmtFinSF1'] + X['BsmtFinSF2'] + X['1stFlrSF'] + X['2ndFlrSF'])
+        X['Total_porch_sf'] = (X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
 
         # X[num_candidates] = self.scaler_transform(X[num_candidates])
 
