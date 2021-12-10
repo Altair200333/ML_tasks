@@ -17,11 +17,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
+import scipy.stats as stats
 
 
 def remove_outliers(X, lot_area=False):
     ids = None
     if not lot_area:
+        #ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000) | (X["LotFrontage"] > 300)].index
         ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000)].index
     else:
         ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000))].index
@@ -96,6 +98,16 @@ class DataTransformer:
         # X['MSZoning'] = X['MSZoning'].fillna(X['MSZoning'].mode()[0])
         # X["LotFrontage"] = X.groupby("Neighborhood")["LotFrontage"].transform(lambda x: x.fillna(x.median()))
 
+        dist_cols = ["LotFrontage", "GarageYrBlt"]
+        for col in dist_cols:
+            missing = X[X[col].isna()][col]
+            not_missing = X[X[col].notnull()][col]
+
+            params = stats.johnsonsu.fit(not_missing)
+
+            r = stats.johnsonsu.rvs(params[0], params[1], params[2], params[3], size=missing.shape[0])
+            X[col].loc[missing.index] = r
+
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
         zero_nan_cols = ['GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
                          'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr',
@@ -114,7 +126,7 @@ class DataTransformer:
                 X[col] = X[col].astype("object")
 
     def drop_columns(self, X):
-        cats_to_drop = ["Utilities", "GarageYrBlt", "YearRemodAdd"]
+        cats_to_drop = ["Utilities", "YearRemodAdd"]
         X = X.drop(cats_to_drop, axis=1)
         return X
 

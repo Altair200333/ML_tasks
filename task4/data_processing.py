@@ -16,7 +16,7 @@ def get_missing_values_info(df):
     percent=total/len(df)*100
     temp=pd.concat([total, percent], axis=1, keys=['Total', '%'])
 
-    return temp.loc[(temp['%']>5)]
+    return temp.loc[(temp['%']>0)]
 
 
 def fill_nan(df):
