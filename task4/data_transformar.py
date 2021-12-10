@@ -23,7 +23,7 @@ import scipy.stats as stats
 def remove_outliers(X, lot_area=False):
     ids = None
     if not lot_area:
-        #ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000) | (X["LotFrontage"] > 300)].index
+        # ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000) | (X["LotFrontage"] > 300)].index
         ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000)) | (X["LotArea"] > 100000)].index
     else:
         ids = X[((X['GrLivArea'] > 4000) & (X["SalePrice"] < 300000))].index
@@ -86,11 +86,11 @@ class DataTransformer:
         return data
 
     def nums_to_cats(self, X):
-        num_to_cats = ["HalfBath", "KitchenAbvGr", "Fireplaces", "FullBath", "OverallCond", "OverallQual",
-                       "TotRmsAbvGrd", "MSSubClass", "MoSold", "YrSold"]
-
-        for feat in num_to_cats:
-            X[feat] = X[feat].apply(str).astype("object")
+        #num_to_cats = ["HalfBath", "FullBath", "OverallCond", "OverallQual",
+        #               "MSSubClass", "MoSold", "YrSold"]
+#
+        #for feat in num_to_cats:
+        #    X[feat] = X[feat].apply(str).astype("object")
 
         return X
 
@@ -142,7 +142,7 @@ class DataTransformer:
 
         numeric = self.imputer_transform(X[num_candidates])
 
-        self.scaler_fit(numeric)
+        # self.scaler_fit(numeric)
 
         self.fit_encoder(X)
 
@@ -150,7 +150,7 @@ class DataTransformer:
         num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
         X[num_candidates] = self.imputer_transform(X[num_candidates])
 
-        X[num_candidates] = self.scaler_transform(X[num_candidates])
+        # X[num_candidates] = self.scaler_transform(X[num_candidates])
 
         if encode:
             X = self.encode(X)
