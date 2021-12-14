@@ -94,7 +94,7 @@ class DataTransformer:
         return X
 
     def fillna(self, X):
-        #X = X[(X.MSZoning != 'C (all)') & (X.MSZoning != 'I (all)') & (X.MSZoning != 'A (agr)')]
+        # X = X[(X.MSZoning != 'C (all)') & (X.MSZoning != 'I (all)') & (X.MSZoning != 'A (agr)')]
 
         X['Exterior1st'] = X['Exterior1st'].fillna(X['Exterior1st'].mode()[0])
         X['Exterior2nd'] = X['Exterior2nd'].fillna(X['Exterior2nd'].mode()[0])
@@ -115,7 +115,7 @@ class DataTransformer:
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
         zero_nan_cols = ['GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
                          'BsmtUnfSF', 'TotalBsmtSF', 'BsmtFullBath', 'BsmtHalfBath', 'BedroomAbvGr',
-                         "1stFlrSF", "2ndFlrSF"]
+                         "1stFlrSF", "2ndFlrSF", "MiscVal"]
 
         for col in zero_nan_cols:
             X[col] = X[col].fillna(0)
@@ -138,6 +138,12 @@ class DataTransformer:
         X = self.drop_columns(X)
         self.nums_to_cats(X)
         self.fillna(X)
+
+        X['TotalSF'] = X['TotalBsmtSF'] + X['1stFlrSF'] + X['2ndFlrSF']
+        X['Total_sqr_footage'] = (X['BsmtFinSF1'] + X['BsmtFinSF2'] + X['1stFlrSF'] + X['2ndFlrSF'])
+        X['Total_porch_sf'] = (
+                X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
+
         return X
 
     def fit(self, X):
@@ -146,19 +152,33 @@ class DataTransformer:
 
         numeric = self.imputer_transform(X[num_candidates])
 
-        # self.scaler_fit(numeric)
+        self.scaler_fit(numeric)
 
         self.fit_encoder(X)
 
-    def transform(self, X, encode=True):
+    def transform(self, X, encode=True, scale=False):
         num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
+
         X[num_candidates] = self.imputer_transform(X[num_candidates])
+
+        if scale:
+            X[num_candidates] = self.scaler_transform(X[num_candidates])
+
+        if encode:
+            X = self.encode(X)
+
+        return X
+
+    def fit_transform(self, X, encode=False):
+
+        X = self.prepare(X)
+        num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
+        X[num_candidates] = self.imputer.fit_transform(X[num_candidates])
 
         X['TotalSF'] = X['TotalBsmtSF'] + X['1stFlrSF'] + X['2ndFlrSF']
         X['Total_sqr_footage'] = (X['BsmtFinSF1'] + X['BsmtFinSF2'] + X['1stFlrSF'] + X['2ndFlrSF'])
-        X['Total_porch_sf'] = (X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
-
-        # X[num_candidates] = self.scaler_transform(X[num_candidates])
+        X['Total_porch_sf'] = (
+                X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
 
         if encode:
             X = self.encode(X)
