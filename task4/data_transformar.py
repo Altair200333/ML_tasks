@@ -110,6 +110,7 @@ class DataTransformer:
 
             r = stats.johnsonsu.rvs(params[0], params[1], params[2], params[3], size=missing.shape[0])
             X[col].loc[missing.index] = r
+            X[col] = X[col].astype("float")
 
         # категории у которых остуствие значения означает == 0, так если машин в гараже None, то их наверно 0)
         zero_nan_cols = ['GarageArea', 'GarageCars', "MasVnrArea", 'BsmtFinSF1', 'BsmtFinSF2',
