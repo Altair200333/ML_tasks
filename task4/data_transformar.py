@@ -18,6 +18,7 @@ from sklearn.ensemble import RandomForestRegressor
 from sklearn.experimental import enable_iterative_imputer
 from sklearn.impute import IterativeImputer
 import scipy.stats as stats
+from sklearn.preprocessing import LabelEncoder
 
 
 def remove_outliers(X, lot_area=False):
@@ -69,6 +70,15 @@ class DataTransformer:
         result = pd.concat([result.reset_index(drop=True), df.reset_index(drop=True)], axis=1)
 
         return result
+
+    def encode_label(self, X):
+        object_candidates = list(X.dtypes[X.dtypes == "object"].index.values)
+
+        encoder = LabelEncoder()
+        for col in object_candidates:
+            X[col] = encoder.fit_transform(X[col])
+
+        return X
 
     def imputer_fit(self, X):
         self.imputer.fit(X)
@@ -139,11 +149,6 @@ class DataTransformer:
         self.nums_to_cats(X)
         self.fillna(X)
 
-        X['TotalSF'] = X['TotalBsmtSF'] + X['1stFlrSF'] + X['2ndFlrSF']
-        X['Total_sqr_footage'] = (X['BsmtFinSF1'] + X['BsmtFinSF2'] + X['1stFlrSF'] + X['2ndFlrSF'])
-        X['Total_porch_sf'] = (
-                X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
-
         return X
 
     def fit(self, X):
@@ -163,7 +168,11 @@ class DataTransformer:
 
         if scale:
             X[num_candidates] = self.scaler_transform(X[num_candidates])
-
+        else:
+            X['TotalSF'] = X['TotalBsmtSF'] + X['1stFlrSF'] + X['2ndFlrSF']
+            X['Total_sqr_footage'] = (X['BsmtFinSF1'] + X['BsmtFinSF2'] + X['1stFlrSF'] + X['2ndFlrSF'])
+            X['Total_porch_sf'] = (
+                    X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
         if encode:
             X = self.encode(X)
 
@@ -181,6 +190,15 @@ class DataTransformer:
                 X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
 
         if encode:
-            X = self.encode(X)
+            X = self.encode_label(X)
 
         return X
+
+
+def save_res(submission):
+    validation = pd.read_csv("./test.csv")
+    val_ids = validation["Id"]
+
+    d = {'Id': val_ids.to_numpy(), 'SalePrice':  np.expm1(submission)}
+    df = pd.DataFrame(data=d)
+    df.to_csv('submission.csv', index=False)
