@@ -178,7 +178,7 @@ class DataTransformer:
 
         return X
 
-    def fit_transform(self, X, encode=False):
+    def fit_transform(self, X, encode=False, scale=False):
 
         X = self.prepare(X)
         num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
@@ -188,6 +188,10 @@ class DataTransformer:
         X['Total_sqr_footage'] = (X['BsmtFinSF1'] + X['BsmtFinSF2'] + X['1stFlrSF'] + X['2ndFlrSF'])
         X['Total_porch_sf'] = (
                 X['OpenPorchSF'] + X['3SsnPorch'] + X['EnclosedPorch'] + X['ScreenPorch'] + X['WoodDeckSF'])
+
+        if scale:
+            num_candidates = list(X.dtypes[X.dtypes != "object"].index.values)
+            X[num_candidates] = self.scaler.fit_transform(X[num_candidates])
 
         if encode:
             X = self.encode_label(X)
@@ -199,6 +203,6 @@ def save_res(submission):
     validation = pd.read_csv("./test.csv")
     val_ids = validation["Id"]
 
-    d = {'Id': val_ids.to_numpy(), 'SalePrice':  np.expm1(submission)}
+    d = {'Id': val_ids.to_numpy(), 'SalePrice': np.expm1(submission)}
     df = pd.DataFrame(data=d)
     df.to_csv('submission.csv', index=False)
